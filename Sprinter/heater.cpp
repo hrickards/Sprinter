@@ -497,24 +497,24 @@ int read_max6675()
 int temp2analog_thermistor(int celsius, const short table[][2], int numtemps) 
 {
     int raw = 0;
-    byte i;
+    // byte i;
     
-    for (i=1; i<numtemps; i++)
-    {
-      if (table[i][1] < celsius)
-      {
-        raw = table[i-1][0] + 
-          (celsius - table[i-1][1]) * 
-          (table[i][0] - table[i-1][0]) /
-          (table[i][1] - table[i-1][1]);
-      
-        break;
-      }
-    }
+    // for (i=1; i<numtemps; i++)
+    // {
+    //   if (table[i][1] < celsius)
+    //   {
+    //     raw = table[i-1][0] + 
+    //       (celsius - table[i-1][1]) * 
+    //       (table[i][0] - table[i-1][0]) /
+    //       (table[i][1] - table[i-1][1]);
+    //   
+    //     break;
+    //   }
+    // }
 
     // Overflow: Set to last value in the table
-    if (i == numtemps) raw = table[i-1][0];
-
+    // if (i == numtemps) raw = table[i-1][0];
+    
     return 1023 - raw;
 }
 #endif
@@ -536,25 +536,27 @@ int temp2analog_max6675(int celsius)
 #if defined (HEATER_USES_THERMISTOR) || defined (BED_USES_THERMISTOR)
 int analog2temp_thermistor(int raw,const short table[][2], int numtemps) {
     int celsius = 0;
-    byte i;
+    // byte i;
     
     raw = 1023 - raw;
 
-    for (i=1; i<numtemps; i++)
-    {
-      if (table[i][0] > raw)
-      {
-        celsius  = table[i-1][1] + 
-          (raw - table[i-1][0]) * 
-          (table[i][1] - table[i-1][1]) /
-          (table[i][0] - table[i-1][0]);
-
-        break;
-      }
-    }
+    // for (i=1; i<numtemps; i++)
+    // {
+    //   if (table[i][0] > raw)
+    //   {
+    //     celsius  = table[i-1][1] + 
+    //       (raw - table[i-1][0]) * 
+    //       (table[i][1] - table[i-1][1]) /
+    //       (table[i][0] - table[i-1][0]);
+    //
+    //     break;
+    //   }
+    // }
 
     // Overflow: Set to last value in the table
-    if (i == numtemps) celsius = table[i-1][1];
+    // if (i == numtemps) celsius = table[i-1][1];
+
+    celsius = (int) round(-273.15 + 1/(-0.0009428599884347705 + 0.000514271007433053*log((5875*raw)/(256.*(5 - (5*raw)/1024.))) - 1.0826047046130167e-6*pow(log((5875*raw)/(256.*(5 - (5*raw)/1024.))),3)));
 
     return celsius;
 }
