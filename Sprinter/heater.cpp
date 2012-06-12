@@ -27,6 +27,7 @@
 #include "fastio.h"
 #include "pins.h"
 #include "Sprinter.h"
+#include "math.h"
 
 #ifdef CONTROLLERFAN_PIN
   void controllerFan(void);
@@ -514,6 +515,10 @@ int temp2analog_thermistor(int celsius, const short table[][2], int numtemps)
 
     // Overflow: Set to last value in the table
     // if (i == numtemps) raw = table[i-1][0];
+
+    float t2ar = exp((3553.54 - 4.11759*celsius)/(273.15 + celsius));
+    float t2av = (5.*t2ar)/(4700.+t2ar);
+    raw = (int) round(t2av*204.8);
     
     return 1023 - raw;
 }
@@ -555,8 +560,9 @@ int analog2temp_thermistor(int raw,const short table[][2], int numtemps) {
 
     // Overflow: Set to last value in the table
     // if (i == numtemps) celsius = table[i-1][1];
-
-    celsius = (int) round(-273.15 + 1/(-0.0009428599884347705 + 0.000514271007433053*log((5875*raw)/(256.*(5 - (5*raw)/1024.))) - 1.0826047046130167e-6*pow(log((5875*raw)/(256.*(5 - (5*raw)/1024.))),3)));
+    float a2tv = 5.*raw/1024.;
+    float a2tr = (4700.*a2tv)/(5.-a2tv);
+    celsius = (int) round(-273.15 + 1/(-0.0009428599884347705 + 0.000514271007433053*log(a2tr) - 1.0826047046130167e-6*pow(log(a2tr),3)));
 
     return celsius;
 }
